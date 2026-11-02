@@ -1,108 +1,68 @@
-# NTUA ECE SAAS 2025 PROJECT
+# ClearSky — Grade Statistics Platform
 
-## TEAM (27)
+ClearSky is a microservice-based SaaS platform for publishing and analysing course grades. Instructors upload grade spreadsheets, students see their grades and course-wide statistics and can request a review, and each institution manages its users and buys the credits that grade uploads consume.
 
-# ClearSky – Student Grade Evaluation Platform 
+Built by **Team 27** for the *Software as a Service* course (SaaS 2025), School of Electrical and Computer Engineering, NTUA.
 
-ClearSky is a full-stack web application for managing and analyzing student grades within academic institutions. It supports uploading grades via Excel, visualizing statistics, reviewing grading requests, and authenticating via Google OAuth. The platform follows a microservice architecture for scalability and modularity.
+## Architecture
 
----
+![Component diagram](docs/diagrams/Component%20Diagram.png)
 
-## Tech Stack
+The system is split into small services, each with its own MongoDB database, behind three orchestrators that implement the user-facing workflows. Services communicate over REST and asynchronously through RabbitMQ.
 
-### Frontend
-- `HTML`, `JavaScript`, `CSS`
-- `react-query`, `axios`, `chart.js`, `react-router-dom`
+| Layer | Component | Responsibility |
+|---|---|---|
+| Frontend | `frontend_new` | Role-based web pages (HTML/JavaScript, Chart.js), served by nginx |
+| Orchestrators | `userflow-orchestrator` | Sign-up, login (incl. Google OAuth), institutions and users |
+| | `grade-orchestrator` | Initial/final grade upload, credit checks, statistics requests |
+| | `review-orchestrator` | Review requests and instructor replies |
+| Services | `user-auth-service` | Authentication and JWT tokens |
+| | `user-management-service` | Users, roles and course enrolments |
+| | `institution-service` | Institutions and their courses |
+| | `credit-service` | Institution credit balance and usage |
+| | `grade-service` | Parses Excel uploads and stores per-question and final grades |
+| | `statistics-service` | Grade distributions and summary statistics per course |
+| | `review-service` | Review requests and their status |
+| | `notification-service` | E-mail notifications, consumed from RabbitMQ |
+| Messaging | `rabbit-mq` | Message broker between services |
 
-### Backend (Orchestrators)
-- **Node.js** with `express.js`
-- `axios`, `formidable`, `amqplib` (RabbitMQ), `multer`
-- Auth via Google OAuth2
+**Stack:** Node.js, Express, MongoDB (Mongoose), RabbitMQ, JWT, Google OAuth 2.0, nginx, Docker Compose.
 
-### Microservices
-- `user-management-service`: Manages users & course registrations (MongoDB)
-- `user-auth-service`: Manages user authentication (MongoDB)
-- `grade-service`: Parses and stores grades from Excel files (MongoDB)
-- `review-service`: Review requests for grade re-evaluation (MongoDB)
-- `statistics-service`: Calculates and stores statistical metrics (MongoDB)
-- `institution-service`: Maintains institutions and available credits (MongoDB)
-- `credit-service`: Tracks and validates credit consumption (MongoDB)
-- `notification-service`: Sends email updates to users
+More design diagrams (class, deployment, and sequence diagrams for every main use case) are in [`docs/diagrams`](docs/diagrams), and the full Visual Paradigm model is in [`architecture/`](architecture).
 
----
+## Roles and features
 
-## Key Features
+- **Student** — view personal grades per course, see course statistics, request a grade review.
+- **Instructor** — upload initial and final grades from Excel, view statistics, answer review requests.
+- **Institution representative** — register and update the institution, manage users, purchase credits, view statistics.
 
-### Authentication
-- Login via **Google OAuth 2.0**
-- Roles: `student`, `instructor`, `rep`
+## Running locally
 
-### Grade Upload (Instructor)
-- Upload Excel files with initial grades
-- Parses file and stores per-question & final scores
-- Deducts credits based on upload
-
-### Grade Visualization (Student)
-- View your personal grade
-- View course-wide statistics and distributions
-- Charts per question and final grade
-
-### Review Requests (Student & Instructor)
-- Students can request grade reviews
-- Instructors see and respond to pending review requests
-
-### Statistics (All Roles)
-- Automatic calculation of:
-  - Average, Median, Std Dev
-  - Number of Passes / Fails
-  - Distribution per question
-- Visualized using `chart.js` bar charts
-
----
-
-## Installation & Running Locally
-
-1. **Clone the repo**
+Requires Docker and Docker Compose.
 
 ```bash
-git clone https://github.com/ntua/saas25-27.git
-cd saas25-27
+git clone https://github.com/harrissfiris/clearsky.git
+cd clearsky
+docker compose up --build
 ```
 
-2. **Run with Docker Compose**
+Then open [http://localhost](http://localhost). Seeder containers create the initial users on start-up.
 
-```bash
-docker-compose up --build
+Sample grade files to upload as an instructor are included: `grades.xlsx`, `grades1.xlsx`, `grades2.xlsx`, `grades3.xlsx`.
+
+## Repository layout
+
+```
+frontend_new/          web pages and nginx config
+*-orchestrator/        workflow orchestrators
+*-service/             microservices (OpenAPI specs in openapi.yaml)
+rabbit-mq/             message broker setup
+architecture/          Visual Paradigm model
+docs/diagrams/         exported UML diagrams
+ai-log/                AI-assistance logs required by the course
+docker-compose.yaml    full system definition
 ```
 
-All services will be available on their respective ports (e.g., 8081, 8100, 9000 etc.).
+## License
 
-3. **Open the frontend**
-
-Go to: [http://localhost](http://localhost)
-
----
-
-## Testing the System
-
-### Upload Grades
-
-- Login as instructor
-- Go to “Post Initial Grades”
-- Upload Excel file with proper schema, example excels are provided by us(grades1.xlsx, grades2.xlsx,...)
-
-
-### View Grades
-
-- Login as student
-- Select course
-- See your personal grade, statistics, and distributions
-
-### Review Requests
-
-- Student submits review request
-- Instructor sees it under “Review Requests” page
-
----
-
-This project was developed as part of the **2025 Software as a Service (SaaS)**, NTUA, Professor: Vassilios Vescoukis.
+See [LICENSE](LICENSE).
