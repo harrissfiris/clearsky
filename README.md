@@ -1,4 +1,4 @@
-# ClearSky — Grade Statistics Platform
+# ClearSky: Grade Statistics Platform
 
 ClearSky is a microservice-based SaaS platform for publishing and analysing course grades. Instructors upload grade spreadsheets, students see their grades and course-wide statistics and can request a review, and each institution manages its users and buys the credits that grade uploads consume.
 
@@ -32,9 +32,9 @@ More design diagrams (class, deployment, and sequence diagrams for every main us
 
 ## Roles and features
 
-- **Student** — view personal grades per course, see course statistics, request a grade review.
-- **Instructor** — upload initial and final grades from Excel, view statistics, answer review requests.
-- **Institution representative** — register and update the institution, manage users, purchase credits, view statistics.
+- **Student:** view personal grades per course, see course statistics, request a grade review.
+- **Instructor:** upload initial and final grades from Excel, view statistics, answer review requests.
+- **Institution representative:** register and update the institution, manage users, purchase credits, view statistics.
 
 ## Running locally
 
